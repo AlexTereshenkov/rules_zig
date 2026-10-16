@@ -89,6 +89,7 @@ bazel_dep(
     version = "0.37.1",
     dev_dependency = True,
 )
+
 # a transitive dependency of some Bazel rulesets
 bazel_dep(name = "protobuf", version = "33.4", dev_dependency = True)
 
