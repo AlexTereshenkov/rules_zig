@@ -89,6 +89,7 @@ bazel_dep(
     version = "0.37.1",
     dev_dependency = True,
 )
+bazel_dep(name = "protobuf", version = "33.4", dev_dependency = True)
 
 bazel_binaries = use_extension(
     "@rules_bazel_integration_test//:extensions.bzl",
