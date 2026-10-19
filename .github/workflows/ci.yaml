@@ -169,7 +169,7 @@ jobs:
       - matrix-prep-bazelversion
       - matrix-prep-zigversion
 
-    name: Test //zig/tests/simple-test with Zig ${{ fromJSON(needs.matrix-prep-zigversion.outputs.zigversions)[0] }}, and Bazel ${{ fromJSON(needs.matrix-prep-bazelversion.outputs.bazelversions)[0] }} on windows-latest
+    name: Test //... with Zig ${{ fromJSON(needs.matrix-prep-zigversion.outputs.zigversions)[0] }}, and Bazel ${{ fromJSON(needs.matrix-prep-bazelversion.outputs.bazelversions)[0] }} on windows-latest
 
     steps:
       - uses: actions/checkout@v6

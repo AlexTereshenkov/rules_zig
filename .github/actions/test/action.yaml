@@ -96,9 +96,15 @@ runs:
       run: echo "build --@zig_toolchains//:version=${{ inputs.zigVersion }}" >> .bazelrc.user
 
     - name: Test generated files
-      if: inputs.folder == '.' && inputs.targetPattern == '//...'
+      # Generated files are platform independent, so Linux and macOS already
+      # cover this check.
+      if: inputs.folder == '.' && inputs.targetPattern == '//...' && runner.os != 'Windows'
       working-directory: ${{ inputs.folder }}
       shell: bash
+      env:
+        # Git Bash on Windows rewrites arguments that look like POSIX paths,
+        # turning the label `//util:update` into `/util:update`.
+        MSYS_NO_PATHCONV: "1"
       run: |
         # Bazelisk will download bazel to here, ensure it is cached between runs.
         export XDG_CACHE_HOME="$HOME/.cache/bazel-repo"
@@ -112,6 +118,8 @@ runs:
     - name: bazel test ${{ inputs.targetPattern }}
       working-directory: ${{ inputs.folder }}
       shell: bash
+      env:
+        MSYS_NO_PATHCONV: "1"
       run: |
         # Bazelisk will download bazel to here, ensure it is cached between runs.
         export XDG_CACHE_HOME="$HOME/.cache/bazel-repo"
