@@ -107,7 +107,10 @@ runs:
         MSYS_NO_PATHCONV: "1"
       run: |
         # Bazelisk will download bazel to here, ensure it is cached between runs.
-        export XDG_CACHE_HOME="$HOME/.cache/bazel-repo"
+        # On Windows, Git Bash's $HOME is a POSIX path (/c/Users/...), which
+        # native tools such as Bazel's symlink creation reject. Use cygpath to
+        # get a mixed path (C:/Users/...) there.
+        export XDG_CACHE_HOME="$(cygpath -m "$HOME" 2>/dev/null || echo "$HOME")/.cache/bazel-repo"
         bazel --bazelrc=$GITHUB_WORKSPACE/.github/workflows/ci.bazelrc --bazelrc=.bazelrc run //util:update
         [ -z "$(git status --porcelain=v1 2>/dev/null)" ] || {
           echo 'Update generated files using `bazel run //util:update`' >&2
@@ -122,5 +125,8 @@ runs:
         MSYS_NO_PATHCONV: "1"
       run: |
         # Bazelisk will download bazel to here, ensure it is cached between runs.
-        export XDG_CACHE_HOME="$HOME/.cache/bazel-repo"
+        # On Windows, Git Bash's $HOME is a POSIX path (/c/Users/...), which
+        # native tools such as Bazel's symlink creation reject. Use cygpath to
+        # get a mixed path (C:/Users/...) there.
+        export XDG_CACHE_HOME="$(cygpath -m "$HOME" 2>/dev/null || echo "$HOME")/.cache/bazel-repo"
         bazel --bazelrc=$GITHUB_WORKSPACE/.github/workflows/ci.bazelrc --bazelrc=.bazelrc test ${{ inputs.targetPattern }} ${{ inputs.tagFilters != '' && format('--build_tag_filters={0} --test_tag_filters={0}', inputs.tagFilters) || '' }} ${{ inputs.bazelFlags }}

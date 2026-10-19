@@ -164,6 +164,10 @@ jobs:
   # Not yet part of all_tests, so a failure does not block merging.
   test-windows:
     runs-on: windows-latest
+    # gha_join_jobs in all_tests checks every job in the run, not only those in
+    # its `needs`. With continue-on-error, a failing job is reported as
+    # successful, so it doesn't fail all_tests. Remove once Windows is stable.
+    continue-on-error: true
 
     needs:
       - matrix-prep-bazelversion
