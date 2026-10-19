@@ -181,10 +181,11 @@ jobs:
           bazelVersion: ${{ fromJSON(needs.matrix-prep-bazelversion.outputs.bazelversions)[0] }}
           docsEnabled: false
           zigVersion: ${{ fromJSON(needs.matrix-prep-zigversion.outputs.zigversions)[0] }}
-          targetPattern: "//zig/tests/simple-test:test"
+          targetPattern: "//..."
           tagFilters: ""
           # No remote cache or execution while bringing up Windows.
           remoteEnabled: false
+          bazelFlags: "--config=windows"
 
   # Zig documentation builds are separated to work around the following issue:
   # https://github.com/hermeticbuild/rules_zig/issues/273
