@@ -2,6 +2,11 @@
 # Take care to document any settings that you expect users to apply.
 # Settings that apply only to CI are in .github/workflows/ci.bazelrc
 
+# Support Bazel builds on Windows
+startup --windows_enable_symlinks
+build --enable_runfiles
+build --enable_platform_specific_config
+
 # Use a pre-built protoc toolchain, available since protobuf@33.4
 common --incompatible_enable_proto_toolchain_resolution=true
 common --@protobuf//bazel/toolchains:prefer_prebuilt_protoc
@@ -17,6 +22,8 @@ import %workspace%/.bazelrc.remote
 
 # docs: https://bazel.build/reference/command-line-reference#flag--workspace_status_command
 build --workspace_status_command=$(pwd)/workspace_status.sh
+build:windows --workspace_status_command="bash workspace_status.sh"
+build:windows --shell_executable=c:/msys64/usr/bin/bash.exe
 
 # Deleted packages for integration tests.
 # To update these lines, execute

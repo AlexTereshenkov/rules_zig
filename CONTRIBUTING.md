@@ -61,6 +61,18 @@ echo "common $OVERRIDE" >> ~/.bazelrc
 
 This means that any usage of `@rules_zig` on your system will point to this folder.
 
+## Windows support
+
+To build the `rules_zig` project natively on a Windows machine, follow the instructions in
+[Using Bazel on Windows](https://bazel.build/configure/windows).
+
+To build, test, or run targets that depend on Bash, install MSYS2.
+To build C++ targets with MSVC, install Build Tools for Visual Studio and export the path to the installation directory:
+
+```shell
+set BAZEL_VC="C:\Program Files (x86)\Microsoft Visual Studio\<version>\BuildTools\VC"
+```
+
 ## Releasing
 
 1. Determine the next release version, following semver (could automate in the future from changelog)
