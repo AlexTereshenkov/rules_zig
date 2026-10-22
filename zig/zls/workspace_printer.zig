@@ -79,7 +79,7 @@ fn canonicalizePath(allocator: std.mem.Allocator, io: std.Io, path: []const u8) 
 // Escapes a value for insertion inside a JSON string literal.
 // Needed on Windows, where paths contain backslashes that are invalid
 // (or wrongly interpreted) escape sequences in JSON.
-fn jsonEscapeAlloc(allocator: std.mem.Allocator, value: []const u8) ![]u8 {
+fn jsonEscapeLeaky(allocator: std.mem.Allocator, value: []const u8) ![]u8 {
     const step1 = try std.mem.replaceOwned(u8, allocator, value, "\\", "\\\\");
     return std.mem.replaceOwned(u8, allocator, step1, "\"", "\\\"");
 }
@@ -154,8 +154,8 @@ pub fn main(init: std.process.Init) !void {
 
     // The placeholders sit inside JSON string literals, so the substituted
     // values must be JSON-escaped (Windows paths contain backslashes).
-    const workspace_escaped = try jsonEscapeAlloc(arena.allocator(), build_workspace_directory);
-    const execution_root_escaped = try jsonEscapeAlloc(arena.allocator(), execution_root);
+    const workspace_escaped = try jsonEscapeLeaky(arena.allocator(), build_workspace_directory);
+    const execution_root_escaped = try jsonEscapeLeaky(arena.allocator(), execution_root);
 
     output = try std.mem.replaceOwned(
         u8,
