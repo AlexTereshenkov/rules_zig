@@ -120,6 +120,7 @@ runs:
             '#!/bin/bash' \
             'export BUILD_WORKSPACE_DIRECTORY="$(cygpath -m "$PWD")"' \
             'export BUILD_WORKING_DIRECTORY="$BUILD_WORKSPACE_DIRECTORY"' \
+            'echo "DEBUG wrapper pwd: $PWD / $BUILD_WORKSPACE_DIRECTORY" >&2' \
             'exec bash "$@"' > "$RUNNER_TEMP/run_update.sh"
           WINDOWS_FLAGS=("--run_under=bash $(cygpath -m "$RUNNER_TEMP")/run_update.sh" --enable_runfiles)
         fi

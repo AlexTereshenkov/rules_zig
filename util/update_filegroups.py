@@ -68,6 +68,7 @@ def query_packages(bazel):
     """
     pattern = PACKAGE_PATTERN
     command = [bazel, "query", pattern, "--output=package"]
+    import sys; print("DEBUG cwd:", os.getcwd(), "ws:", os.getenv("BUILD_WORKSPACE_DIRECTORY"), "bazel:", bazel, file=sys.stderr)  # TEMPORARY
     return subprocess.check_output(command).decode().split("\n")
 
 
