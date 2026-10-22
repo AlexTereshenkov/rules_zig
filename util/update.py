@@ -27,18 +27,21 @@ def main():
     command = [bazel, "run"]
     with tempfile.TemporaryDirectory() as tmp:
         if platform.system() == "Windows":
-            # Use forward slashes, as bash and Bazel's option parser would
-            # otherwise treat backslashes as escape characters.
+            # Not `bash` from PATH, it may be WSL's, which cannot see Windows paths.
+            if (bash := os.getenv("BAZEL_SH")) is None:
+                sys.exit("Set BAZEL_SH to the path of an MSYS2, e.g. C:/msys64/usr/bin/bash.exe.")
+            # Use forward slashes, as backslashes would be treated as escapes.
+            bash = bash.replace("\\", "/")
             workspace = workspace.replace("\\", "/")
             wrapper = os.path.join(tmp, "run_under.sh").replace("\\", "/")
             with open(wrapper, "w", newline="\n") as f:
-                f.write("#!/bin/bash\n")
+                f.write(f"export BAZEL_SH='{bash}'\n")
                 f.write(f"export BUILD_WORKSPACE_DIRECTORY='{workspace}'\n")
                 f.write(f"export BUILD_WORKING_DIRECTORY='{workspace}'\n")
-                f.write('exec bash "$@"\n')
+                f.write(f"exec '{bash}' \"$@\"\n")
             # The Python runner of multirun needs a real runfiles tree, which
             # Windows disables by default.
-            command += [f"--run_under=bash {wrapper}", "--enable_runfiles"]
+            command += [f'--run_under="{bash}" "{wrapper}"', "--enable_runfiles"]
         command.append(TARGET)
         sys.exit(subprocess.call(command, cwd=workspace))
 

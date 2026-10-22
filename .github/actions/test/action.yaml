@@ -103,6 +103,7 @@ runs:
         # Git Bash on Windows rewrites arguments that look like POSIX paths,
         # turning the label `//util:update` into `/util:update`.
         MSYS_NO_PATHCONV: "1"
+        BAZEL_SH: C:/msys64/usr/bin/bash.exe
       run: |
         # Bazelisk will download bazel to here, ensure it is cached between runs.
         # On Windows, Git Bash's $HOME is a POSIX path (/c/Users/...), which
