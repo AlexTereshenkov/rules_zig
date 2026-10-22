@@ -112,15 +112,16 @@ runs:
         # multirun generates a `.bash` script, which Windows cannot execute
         # directly, so have Bazel run it through bash there. Its Python runner
         # also needs a real runfiles tree, which Windows disables by default.
-        # Bazel does not provide the workspace variables to a script run this
-        # way, so set them to the (mixed style) workspace path.
+        # Bazel does not pass the workspace variables to a script run this way
+        # on Windows, so set them in a wrapper to the (mixed style) workspace path.
         WINDOWS_FLAGS=()
         if [ "$RUNNER_OS" = "Windows" ]; then
-          # TEMPORARY DIAGNOSTICS: show which variables reach the script.
-          printf '%s\n' '#!/bin/bash' 'env | grep -E "^(BUILD_|RUNFILES|BAZEL)" >&2 || echo "no BUILD_ vars in env" >&2' 'exec bash "$@"' > "$RUNNER_TEMP/run_update.sh"
+          printf '%s\n' \
+            '#!/bin/bash' \
+            'export BUILD_WORKSPACE_DIRECTORY="$(cygpath -m "$PWD")"' \
+            'export BUILD_WORKING_DIRECTORY="$BUILD_WORKSPACE_DIRECTORY"' \
+            'exec bash "$@"' > "$RUNNER_TEMP/run_update.sh"
           WINDOWS_FLAGS=("--run_under=bash $(cygpath -m "$RUNNER_TEMP")/run_update.sh" --enable_runfiles)
-          export BUILD_WORKSPACE_DIRECTORY="$(cygpath -m "$PWD")"
-          export BUILD_WORKING_DIRECTORY="$BUILD_WORKSPACE_DIRECTORY"
         fi
         bazel --bazelrc=$GITHUB_WORKSPACE/.github/workflows/ci.bazelrc --bazelrc=.bazelrc run "${WINDOWS_FLAGS[@]}" //util:update
         [ -z "$(git status --porcelain=v1 2>/dev/null)" ] || {
