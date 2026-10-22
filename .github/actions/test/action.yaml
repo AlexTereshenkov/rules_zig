@@ -109,7 +109,11 @@ runs:
         # native tools such as Bazel's symlink creation reject. Use cygpath to
         # get a mixed path (C:/Users/...) there.
         export XDG_CACHE_HOME="$(cygpath -m "$HOME" 2>/dev/null || echo "$HOME")/.cache/bazel-repo"
-        bazel --bazelrc=$GITHUB_WORKSPACE/.github/workflows/ci.bazelrc --bazelrc=.bazelrc run //util:update
+        # multirun generates a `.bash` script, which Windows cannot execute
+        # directly, so have Bazel run it through bash there.
+        RUN_UNDER=()
+        [ "$RUNNER_OS" != "Windows" ] || RUN_UNDER=(--run_under=bash)
+        bazel --bazelrc=$GITHUB_WORKSPACE/.github/workflows/ci.bazelrc --bazelrc=.bazelrc run "${RUN_UNDER[@]}" //util:update
         [ -z "$(git status --porcelain=v1 2>/dev/null)" ] || {
           echo 'Update generated files using `bazel run //util:update`' >&2
           git --no-pager diff >&2
