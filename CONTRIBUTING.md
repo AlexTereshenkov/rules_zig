@@ -73,6 +73,14 @@ To build C++ targets with MSVC, install Build Tools for Visual Studio and export
 set BAZEL_VC="C:\Program Files (x86)\Microsoft Visual Studio\<version>\BuildTools\VC"
 ```
 
+If you have checked out the codebase and the Git attributes concerning line endings (LF vs CRLF) 
+were not applied correctly, run:
+
+```shell
+git add --renormalize .
+git rm --cached -r . && git reset --hard
+```
+
 ## Releasing
 
 1. Determine the next release version, following semver (could automate in the future from changelog)
