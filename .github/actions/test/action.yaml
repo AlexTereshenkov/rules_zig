@@ -112,8 +112,14 @@ runs:
         # multirun generates a `.bash` script, which Windows cannot execute
         # directly, so have Bazel run it through bash there. Its Python runner
         # also needs a real runfiles tree, which Windows disables by default.
+        # Bazel does not provide the workspace variables to a script run this
+        # way, so set them to the (mixed style) workspace path.
         WINDOWS_FLAGS=()
-        [ "$RUNNER_OS" != "Windows" ] || WINDOWS_FLAGS=(--run_under=bash --enable_runfiles)
+        if [ "$RUNNER_OS" = "Windows" ]; then
+          WINDOWS_FLAGS=(--run_under=bash --enable_runfiles)
+          export BUILD_WORKSPACE_DIRECTORY="$(cygpath -m "$PWD")"
+          export BUILD_WORKING_DIRECTORY="$BUILD_WORKSPACE_DIRECTORY"
+        fi
         bazel --bazelrc=$GITHUB_WORKSPACE/.github/workflows/ci.bazelrc --bazelrc=.bazelrc run "${WINDOWS_FLAGS[@]}" //util:update
         [ -z "$(git status --porcelain=v1 2>/dev/null)" ] || {
           echo 'Update generated files using `bazel run //util:update`' >&2
