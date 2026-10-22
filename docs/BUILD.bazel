@@ -17,7 +17,7 @@ config_setting(
     visibility = ["//util:__pkg__"],
 )
 
-# Keep in sync with //util:update.
+# Keep in sync with //util:update_all.
 _TARGET_COMPATIBLE_WITH = select({
     # stardoc produces different line endings on Windows
     # which makes the diff_test fail
