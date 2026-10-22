@@ -110,10 +110,11 @@ runs:
         # get a mixed path (C:/Users/...) there.
         export XDG_CACHE_HOME="$(cygpath -m "$HOME" 2>/dev/null || echo "$HOME")/.cache/bazel-repo"
         # multirun generates a `.bash` script, which Windows cannot execute
-        # directly, so have Bazel run it through bash there.
-        RUN_UNDER=()
-        [ "$RUNNER_OS" != "Windows" ] || RUN_UNDER=(--run_under=bash)
-        bazel --bazelrc=$GITHUB_WORKSPACE/.github/workflows/ci.bazelrc --bazelrc=.bazelrc run "${RUN_UNDER[@]}" //util:update
+        # directly, so have Bazel run it through bash there. Its Python runner
+        # also needs a real runfiles tree, which Windows disables by default.
+        WINDOWS_FLAGS=()
+        [ "$RUNNER_OS" != "Windows" ] || WINDOWS_FLAGS=(--run_under=bash --enable_runfiles)
+        bazel --bazelrc=$GITHUB_WORKSPACE/.github/workflows/ci.bazelrc --bazelrc=.bazelrc run "${WINDOWS_FLAGS[@]}" //util:update
         [ -z "$(git status --porcelain=v1 2>/dev/null)" ] || {
           echo 'Update generated files using `bazel run //util:update`' >&2
           git --no-pager diff >&2
