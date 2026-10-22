@@ -113,14 +113,14 @@ runs:
         # directly, so have Bazel run it through bash there. Its Python runner
         # also needs a real runfiles tree, which Windows disables by default.
         # Bazel does not pass the workspace variables to a script run this way
-        # on Windows, so set them in a wrapper to the (mixed style) workspace path.
+        # on Windows, and runs it from its runfiles directory, so set them in a
+        # wrapper to the (mixed style) workspace path.
         WINDOWS_FLAGS=()
         if [ "$RUNNER_OS" = "Windows" ]; then
           printf '%s\n' \
             '#!/bin/bash' \
-            'export BUILD_WORKSPACE_DIRECTORY="$(cygpath -m "$PWD")"' \
-            'export BUILD_WORKING_DIRECTORY="$BUILD_WORKSPACE_DIRECTORY"' \
-            'echo "DEBUG wrapper pwd: $PWD / $BUILD_WORKSPACE_DIRECTORY" >&2' \
+            "export BUILD_WORKSPACE_DIRECTORY='$(cygpath -m "$PWD")'" \
+            "export BUILD_WORKING_DIRECTORY='$(cygpath -m "$PWD")'" \
             'exec bash "$@"' > "$RUNNER_TEMP/run_update.sh"
           WINDOWS_FLAGS=("--run_under=bash $(cygpath -m "$RUNNER_TEMP")/run_update.sh" --enable_runfiles)
         fi
