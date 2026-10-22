@@ -23,14 +23,8 @@ buildifier_test(
     workspace = "//:WORKSPACE",
 )
 
-# Thhis target invokes `update_all`
-py_binary(
-    name = "update",
-    srcs = ["update.py"],
-)
-
 multirun(
-    name = "update_all",
+    name = "update",
     commands = [
         ":gazelle",
         ":update_filegroups",
