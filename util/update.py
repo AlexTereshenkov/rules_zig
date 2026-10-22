@@ -33,9 +33,14 @@ def main():
             # Use forward slashes, as backslashes would be treated as escapes.
             bash = bash.replace("\\", "/")
             workspace = workspace.replace("\\", "/")
+            # Put it first in PATH, as scripts use `#!/usr/bin/env bash`. The
+            # directory has to be in POSIX style (/c/...), as PATH is split at colons.
+            bash_dir = os.path.dirname(bash)
+            bash_dir = f"/{bash_dir[0].lower()}{bash_dir[2:]}"
             wrapper = os.path.join(tmp, "run_under.sh").replace("\\", "/")
             with open(wrapper, "w", newline="\n") as f:
                 f.write(f"export BAZEL_SH='{bash}'\n")
+                f.write(f"export PATH='{bash_dir}':\"$PATH\"\n")
                 f.write(f"export BUILD_WORKSPACE_DIRECTORY='{workspace}'\n")
                 f.write(f"export BUILD_WORKING_DIRECTORY='{workspace}'\n")
                 f.write(f"exec '{bash}' \"$@\"\n")
