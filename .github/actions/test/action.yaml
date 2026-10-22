@@ -116,7 +116,9 @@ runs:
         # way, so set them to the (mixed style) workspace path.
         WINDOWS_FLAGS=()
         if [ "$RUNNER_OS" = "Windows" ]; then
-          WINDOWS_FLAGS=(--run_under=bash --enable_runfiles)
+          # TEMPORARY DIAGNOSTICS: show which variables reach the script.
+          printf '%s\n' '#!/bin/bash' 'env | grep -E "^(BUILD_|RUNFILES|BAZEL)" >&2 || echo "no BUILD_ vars in env" >&2' 'exec bash "$@"' > "$RUNNER_TEMP/run_update.sh"
+          WINDOWS_FLAGS=("--run_under=bash $(cygpath -m "$RUNNER_TEMP")/run_update.sh" --enable_runfiles)
           export BUILD_WORKSPACE_DIRECTORY="$(cygpath -m "$PWD")"
           export BUILD_WORKING_DIRECTORY="$BUILD_WORKSPACE_DIRECTORY"
         fi
