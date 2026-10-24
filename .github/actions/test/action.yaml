@@ -102,14 +102,14 @@ runs:
       working-directory: ${{ inputs.folder }}
       shell: bash
       env:
-        # Git Bash on Windows rewrites arguments that look like POSIX paths,
-        # turning the label `//util:update` into `/util:update`.
+        # Note [MSYS PATHCONV] Git Bash on Windows rewrites arguments that
+        # look like POSIX paths, turning the label `//util:update` into `/util:update`.
         MSYS_NO_PATHCONV: "1"
       run: |
         # Bazelisk will download bazel to here, ensure it is cached between runs.
-        # On Windows, Git Bash's $HOME is a POSIX path (/c/Users/...), which
-        # native tools such as Bazel's symlink creation reject. Use cygpath to
-        # get a mixed path (C:/Users/...) there.
+        # Note [Windows Cygpath] On Windows, Git Bash's $HOME is a POSIX path
+        # (/c/Users/...), which native tools such as Bazel's symlink creation
+        # reject. Use cygpath to get a mixed path (C:/Users/...) there.
         export XDG_CACHE_HOME="$(cygpath -m "$HOME" 2>/dev/null || echo "$HOME")/.cache/bazel-repo"
         bazel --bazelrc=$GITHUB_WORKSPACE/.github/workflows/ci.bazelrc --bazelrc=.bazelrc run //util:update
         [ -z "$(git status --porcelain=v1 2>/dev/null)" ] || {
@@ -122,11 +122,10 @@ runs:
       working-directory: ${{ inputs.folder }}
       shell: bash
       env:
+        # See Note [MSYS PATHCONV]
         MSYS_NO_PATHCONV: "1"
       run: |
         # Bazelisk will download bazel to here, ensure it is cached between runs.
-        # On Windows, Git Bash's $HOME is a POSIX path (/c/Users/...), which
-        # native tools such as Bazel's symlink creation reject. Use cygpath to
-        # get a mixed path (C:/Users/...) there.
+        # See [Note Cygpath]
         export XDG_CACHE_HOME="$(cygpath -m "$HOME" 2>/dev/null || echo "$HOME")/.cache/bazel-repo"
         bazel --bazelrc=$GITHUB_WORKSPACE/.github/workflows/ci.bazelrc --bazelrc=.bazelrc test ${{ inputs.targetPattern }} ${{ inputs.tagFilters != '' && format('--build_tag_filters={0} --test_tag_filters={0}', inputs.tagFilters) || '' }} ${{ inputs.bazelFlags }}
