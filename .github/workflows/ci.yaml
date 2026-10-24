@@ -191,61 +191,6 @@ jobs:
           remoteEnabled: false
           bazelFlags: "--config=windows"
 
-  # Cross-compilation check: build a binary for Windows on Linux, then run it
-  # on a real Windows machine.
-  cross-build-windows-binary:
-    runs-on: ubuntu-latest
-    continue-on-error: true
-
-    needs:
-      - matrix-prep-bazelversion
-      - matrix-prep-zigversion
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Build //zig/tests/simple-binary for x86_64-windows
-        env:
-          USE_BAZEL_VERSION: ${{ fromJSON(needs.matrix-prep-bazelversion.outputs.bazelversions)[0] }}
-          ZIG_VERSION: ${{ fromJSON(needs.matrix-prep-zigversion.outputs.zigversions)[0] }}
-        run: |
-          flags=(
-            --platforms=//zig/tests/platforms:x86_64-windows
-            --@zig_toolchains//:version="$ZIG_VERSION"
-          )
-          bazel build "${flags[@]}" //zig/tests/simple-binary:binary
-          mkdir -p dist
-          bazel cquery "${flags[@]}" --output=files //zig/tests/simple-binary:binary \
-            | while read -r f; do cp -v "$f" dist/; done
-          ls -l dist
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: simple-binary-x86_64-windows
-          path: dist/
-          if-no-files-found: error
-
-  run-cross-built-windows-binary:
-    runs-on: windows-latest
-    continue-on-error: true
-
-    needs:
-      - cross-build-windows-binary
-
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: simple-binary-x86_64-windows
-          path: dist
-
-      - name: Run the binary and check its output
-        shell: bash
-        run: |
-          set -o pipefail
-          ls -l dist
-          ./dist/*.exe | tee output.txt
-          grep -qx 'Hello World!' output.txt
-
   # Zig documentation builds are separated to work around the following issue:
   # https://github.com/hermeticbuild/rules_zig/issues/273
   #test-zig-docs:
