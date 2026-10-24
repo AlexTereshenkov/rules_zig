@@ -4,4 +4,7 @@ try-import %workspace%/../../.bazelrc.remote
 try-import %workspace%/.bazelrc.user
 
 # docs: https://bazel.build/reference/command-line-reference#flag--workspace_status_command
-build --workspace_status_command=$(pwd)/workspace_status.sh
+build:linux --workspace_status_command=$(pwd)/workspace_status.sh
+build:macos --workspace_status_command=$(pwd)/workspace_status.sh
+build:windows --workspace_status_command="bash workspace_status.sh"
+build:windows --shell_executable=c:/msys64/usr/bin/bash.exe
